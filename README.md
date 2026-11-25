@@ -1,4 +1,4 @@
-<p align="center"><img src=".github/poppy.png" alt=""></p>
+<p align="center"><img src=".github/pod.png" alt=""></p>
 
 # Better with Opium
 
