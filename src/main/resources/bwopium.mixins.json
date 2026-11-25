@@ -1,0 +1,36 @@
+{
+  "required": true,
+  "package": "bwopium.mixin",
+  "compatibilityLevel": "JAVA_${java}",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": [
+    "BlockLogicMixin",
+    "ChunkDecoratorOverworldMixin",
+    "EntityFishingBobberMixin",
+    "MobCreeperMixin",
+    "MobMixin",
+    "MobMonsterMixin",
+    "PlayerMixin",
+    "TileEntityFurnaceBlastMixin",
+    "TileEntityFurnaceMixin",
+    "WorldMixin"
+  ],
+  "client": [
+    "client.FogManagerMixin",
+    "client.LightmapHelperMixin",
+    "client.MinecraftMixin",
+    "client.MobRendererMixin",
+    "client.MobRendererPlayerMixin",
+    "client.PostProcessingManagerMixin",
+    "client.ShaderHelperMixin",
+    "client.ShaderProviderInternalMixin",
+    "client.SoundEngineMixin",
+    "client.WorldRendererMixin",
+    "client.WorldRendererReachMixin"
+  ],
+  "server": [
+    "server.PacketHandlerServerReachMixin"
+  ]
+}

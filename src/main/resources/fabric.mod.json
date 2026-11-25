@@ -1,0 +1,37 @@
+{
+	"schemaVersion": 1,
+	"id": "bwopium",
+	"version": "${version}",
+	"name": "Better with Opium",
+	"description": "Wild opium poppies.",
+	"authors": [
+		"colinthepwner"
+	],
+	"contact": {
+		"homepage": "",
+		"sources": ""
+	},
+	"icon": "assets/bwopium/icon.png",
+	"license": "CC0-1.0",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"bwopium.Bwopium"
+		],
+		"client": [
+			"bwopium.BwopiumClient"
+		]
+	},
+	"mixins": [
+		"bwopium.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=${fabricloader}",
+		"halplibe": ">=${halplibe}",
+		"minecraft": "*",
+		"java": ">=${java}"
+	},
+	"suggests": {
+		"modmenu": ">=${modmenu}"
+	}
+}

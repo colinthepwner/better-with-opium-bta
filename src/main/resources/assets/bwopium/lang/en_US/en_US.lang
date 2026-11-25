@@ -1,0 +1,14 @@
+tile.bwopium.opium_poppy.name=Opium Poppy
+tile.bwopium.opium_poppy.desc=Pale petals around a dark heart.
+item.bwopium.poppy_pod.name=Poppy Pod
+item.bwopium.poppy_pod.desc=Bitter, milky sap beads where it was cut.
+item.bwopium.poppy_pod_half.name=Half Poppy Pod
+item.bwopium.poppy_pod_half.desc=Pale pith and a rattle of grey seeds.
+messages.death.player.bwopium.overdose=%s stopped breathing.
+messages.death.mob.bwopium.overdose=%s stopped breathing.
+tile.bwopium.poppy_crop.name=Young Poppy
+tile.bwopium.poppy_crop.desc=Wants sun, and spring.
+item.bwopium.poppy_seeds.name=Poppy Seeds
+item.bwopium.poppy_seeds.desc=They rattled out of a pod you could have eaten.
+item.bwopium.raw_opium.name=Raw Opium
+item.bwopium.raw_opium.desc=Dark, tacky, and it smells like hay and something sweeter.
