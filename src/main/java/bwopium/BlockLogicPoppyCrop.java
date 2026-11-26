@@ -34,7 +34,7 @@ public class BlockLogicPoppyCrop extends BlockLogic {
 		setBlockBounds(0.2, 0.0, 0.2, 0.8, 0.6, 0.8);
 	}
 
-	public static boolean good_ground(Block<?> b) { return b.hasTag(BlockTags.GROWS_FLOWERS) || b == Blocks.FARMLAND_DIRT || b == Blocks.SAND; }
+	public static boolean good_ground(Block<?> b) { return b.hasTag(BlockTags.GROWS_FLOWERS) || b == Blocks.FARMLAND_DIRT; }
 
 	@Override
 	public boolean canStay(@NotNull World w, @NotNull TilePosc pos) {
