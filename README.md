@@ -10,4 +10,4 @@ find some poppies. eat the pods. you'll be fine.
 
 jar's in [releases](https://github.com/colinthepwner/better-with-opium-bta/releases). put it in `mods` next to [HalpLibe](https://github.com/Turnip-Labs/bta-halplibe).
 
-<p align="center"><img src=".github/poppies.png" alt=""></p>
+<p align="center"><img src=".github/poppy_patch.png" alt=""></p>
