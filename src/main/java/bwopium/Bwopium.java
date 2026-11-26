@@ -110,5 +110,9 @@ public class Bwopium implements ModInitializer {
 
 	void recipes() {
 		RecipeBuilder.Furnace(MOD_ID).setInput(pod).create("poppy_seeds", new ItemStack(seeds, 1));
+
+		int[] dye = {13, 1, 15, 5};
+		for (int c = 0; c < flowers.length; c++)
+			RecipeBuilder.Shapeless(MOD_ID).addInput(flowers[c]).create("poppy_flower_" + COLOR_NAMES[c] + "_to_dye", new ItemStack(Items.DYE, 2, dye[c]));
 	}
 }
