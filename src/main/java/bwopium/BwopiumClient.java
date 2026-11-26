@@ -14,6 +14,9 @@ public class BwopiumClient implements ClientModInitializer {
 		ClientEvents.BLOCK_MODEL_RELOAD.listen(Key.of(Bwopium.MOD_ID), d -> {
 			d.addDispatch(new BlockModelPoppy(Bwopium.poppy, "bwopium:block/opium_poppy/").render3D(false));
 			d.addDispatch(new BlockModelCrop(Bwopium.crop, "bwopium:block/poppy_crop/").render3D(false));
+			d.addDispatch(new BlockModelSlices<>(Bwopium.cake_block, "bwopium:block/opium_cake/", 6).render3D(false));
+			d.addDispatch(new BlockModelSlices<>(Bwopium.pie_block, "bwopium:block/opium_pie/", 4).render3D(false));
+			d.addDispatch(new BlockModelSlices<>(Bwopium.jar_block, "bwopium:block/opium_jar/", 2).render3D(false));
 			for (int c = 0; c < Bwopium.flowers.length; c++)
 				d.addDispatch(new BlockModelGenericFlowerStackable<>(Bwopium.flowers[c], "bwopium:block/poppy_flower_" + Bwopium.COLOR_NAMES[c] + "/").render3D(false));
 		});
@@ -22,6 +25,9 @@ public class BwopiumClient implements ClientModInitializer {
 			d.addDispatch(new ItemModelStandard(Bwopium.pod_half));
 			d.addDispatch(new ItemModelStandard(Bwopium.seeds));
 			d.addDispatch(new ItemModelStandard(Bwopium.raw));
+			for (var i : new net.minecraft.core.item.Item[]{Bwopium.bread, Bwopium.cookie, Bwopium.stew, Bwopium.apple, Bwopium.cake, Bwopium.pie})
+				d.addDispatch(new ItemModelStandard(i));
+			d.addDispatch(new ItemModelOpiumJar(Bwopium.jar));
 		});
 	}
 }

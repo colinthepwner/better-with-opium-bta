@@ -1,5 +1,9 @@
 package bwopium;
 
+import bwopium.food.BlockLogicOpiumEdible;
+import bwopium.food.BlockLogicOpiumJar;
+import bwopium.food.ItemOpiumFood;
+import bwopium.food.ItemOpiumJar;
 import bwopium.high.DeathCauseOverdose;
 import bwopium.high.Opium;
 import bwopium.high.OpiumLook;
@@ -8,6 +12,7 @@ import net.fabricmc.api.ModInitializer;
 import net.minecraft.core.block.Block;
 import net.minecraft.core.block.BlockLogicFlowerStackable;
 import net.minecraft.core.block.Blocks;
+import net.minecraft.core.item.ItemPlaceable;
 import net.minecraft.core.item.Items;
 import net.minecraft.core.net.command.CommandManager;
 import turniplabs.halplibe.helper.creativeInventory.CreativeInventoryPlacement;
@@ -44,6 +49,10 @@ public class Bwopium implements ModInitializer {
 	@SuppressWarnings("unchecked")
 	public static final Block<BlockLogicFlowerStackable>[] flowers = new Block[COLOR_NAMES.length];
 
+	public static Item bread, cookie, stew, apple, cake, pie, jar;
+	public static Block<BlockLogicOpiumEdible> cake_block, pie_block;
+	public static Block<BlockLogicOpiumJar> jar_block;
+
 	public static boolean self_dmg;
 
 	public static volatile boolean client_naive;
@@ -57,6 +66,8 @@ public class Bwopium implements ModInitializer {
 		def.addEntry("poppy_crop_block_id", "change if it clashes with another mod", 2401);
 		def.addEntry("poppy_seeds_item_id", "change if it clashes with another mod", 23402);
 		def.addEntry("poppy_flower_block_id", "first of 4 ids in a row (one per color). change if it clashes with another mod", 2402);
+		def.addEntry("opium_food_item_id", "first of 7 ids in a row (opium bread, cookie, stew, golden apple, cake, pie, jar). change if it clashes with another mod", 23404);
+		def.addEntry("opium_food_block_id", "first of 3 ids in a row (placed opium cake, pie, jar). change if it clashes with another mod", 2406);
 		def.addEntry("raw_opium_item_id", "change if it clashes with another mod", 23403);
 		def.addEntry("frame_pacing", "lets the high/withdrawal mess with your framerate a little. off = never touches fps", true);
 		def.addEntry("input_delay", "a tiny bit of mouse lag sober, none when high, a touch more when sick. off = never touches input", true);
@@ -101,15 +112,47 @@ public class Bwopium implements ModInitializer {
 				.build(n, n, cfg.getInt("poppy_flower_block_id") + c, BlockLogicFlowerStackable::new);
 		}
 
+		float lump = ItemPoppyPod.EXTRACT;
+		int fi = cfg.getInt("opium_food_item_id"), bi = cfg.getInt("opium_food_block_id");
+		cake_block = new BlockBuilder(MOD_ID).setHardness(0.5f).setBlockSound(BlockSounds.CLOTH)
+			.setTags(BlockTags.BROKEN_BY_FLUIDS, BlockTags.NOT_IN_CREATIVE_MENU)
+			.build("opium_cake", "opium_cake", bi, b -> new BlockLogicOpiumEdible(b, false, () -> cake, 3, lump * 2 / 6));
+		pie_block = new BlockBuilder(MOD_ID).setHardness(0.5f).setBlockSound(BlockSounds.CLOTH)
+			.setTags(BlockTags.BROKEN_BY_FLUIDS, BlockTags.NOT_IN_CREATIVE_MENU)
+			.build("opium_pie", "opium_pie", bi + 1, b -> new BlockLogicOpiumEdible(b, true, () -> pie, 5, lump * 2 / 4));
+		jar_block = new BlockBuilder(MOD_ID).setHardness(0.1f).setBlockSound(BlockSounds.GLASS)
+			.setTags(BlockTags.BROKEN_BY_FLUIDS, BlockTags.NOT_IN_CREATIVE_MENU)
+			.build("opium_jar_placed", "opium_jar_placed", bi + 2, BlockLogicOpiumJar::new);
+		bread = new ItemOpiumFood(MOD_ID + ".opium_bread", MOD_ID + ":item/opium_bread", fi, 5, 12, 8, lump, false);
+		cookie = new ItemOpiumFood(MOD_ID + ".opium_cookie", MOD_ID + ":item/opium_cookie", fi + 1, 1, 0, 16, lump / 8, false);
+		stew = new ItemOpiumFood(MOD_ID + ".opium_stew", MOD_ID + ":item/opium_stew", fi + 2, 10, 16, 1, lump, true);
+		apple = new ItemOpiumFood(MOD_ID + ".opium_apple", MOD_ID + ":item/opium_apple", fi + 3, 42, 0, 1, lump, false);
+		cake = new ItemPlaceable(MOD_ID + ".opium_cake", MOD_ID + ":item/opium_cake", fi + 4, cake_block).setMaxStackSize(1);
+		pie = new ItemPlaceable(MOD_ID + ".opium_pie", MOD_ID + ":item/opium_pie", fi + 5, pie_block).setMaxStackSize(1);
+		jar = new ItemOpiumJar(MOD_ID + ".opium_jar", MOD_ID + ":item/opium_jar", fi + 6);
+
 		CreativeInventoryRegistry inv = CreativeInventoryRegistry.INSTANCE;
 		inv.register(poppy, new CreativeInventoryPlacement.After(() -> Blocks.FLOWER_RED)
 			.setCustomSupplier(() -> IntStream.range(0, BlockLogicPoppy.COLORS).mapToObj(c -> new ItemStack(poppy, 1, BlockLogicPoppy.UPPER | c << 3)).toList()));
 		for (int c = flowers.length - 1; c >= 0; c--) inv.register(flowers[c], new CreativeInventoryPlacement.After(() -> poppy));
+		for (Item i : new Item[]{jar, pie, cake, apple, stew, cookie, bread}) inv.register(i, new CreativeInventoryPlacement.After(() -> raw));
 		for (Item i : new Item[]{seeds, pod, pod_half, raw}) inv.register(i, new CreativeInventoryPlacement.After(() -> Items.SEEDS_PUMPKIN));
 	}
 
 	void recipes() {
 		RecipeBuilder.Furnace(MOD_ID).setInput(pod).create("poppy_seeds", new ItemStack(seeds, 1));
+		RecipeBuilder.Shapeless(MOD_ID).addInput(Items.FOOD_BREAD).addInput(raw).create("opium_bread", new ItemStack(bread));
+		RecipeBuilder.Shapeless(MOD_ID).addInput(Items.FOOD_STEW_MUSHROOM).addInput(raw).create("opium_stew", new ItemStack(stew));
+		RecipeBuilder.Shapeless(MOD_ID).addInput(Items.FOOD_APPLE_GOLD).addInput(raw).create("opium_apple", new ItemStack(apple));
+		RecipeBuilder.Shapeless(MOD_ID).addInput(Items.FOOD_CAKE).addInput(raw).addInput(raw).create("opium_cake", new ItemStack(cake));
+		RecipeBuilder.Shapeless(MOD_ID).addInput(Items.FOOD_PUMPKIN_PIE).addInput(raw).addInput(raw).create("opium_pie", new ItemStack(pie));
+		var ck = RecipeBuilder.Shapeless(MOD_ID).addInput(raw);
+		for (int i = 0; i < 8; i++) ck.addInput(Items.FOOD_COOKIE);
+		ck.create("opium_cookie", new ItemStack(cookie, 8));
+
+		RecipeBuilder.Shapeless(MOD_ID).addInput(Items.JAR).addInput(raw).addInput(raw).create("opium_jar", new ItemStack(jar, 1, 0));
+		RecipeBuilder.Shapeless(MOD_ID).addInput(jar, 0).create("opium_jar_empty", new ItemStack(raw, 2));
+		RecipeBuilder.Shapeless(MOD_ID).addInput(jar, 1).create("opium_jar_half_empty", new ItemStack(raw, 1));
 
 		int[] dye = {13, 1, 15, 5};
 		for (int c = 0; c < flowers.length; c++)
