@@ -106,8 +106,10 @@ public class BlockLogicPoppy extends BlockLogic {
 	public ItemStack[] getBreakResult(@NotNull World w, @NotNull EnumDropCause cause, int data, @Nullable TileEntity te) {
 
 		if (cause == EnumDropCause.PICK_BLOCK) return new ItemStack[]{new ItemStack(this, 1, UPPER | data & COLOR)};
+
 		int n = pod_cnt(data);
-		return n > 0 ? new ItemStack[]{new ItemStack(Bwopium.pod, n)} : null;
+		if (n > 0) return new ItemStack[]{new ItemStack(Bwopium.pod, n)};
+		return new ItemStack[]{new ItemStack(Bwopium.flowers[color(data)], heads(data) >= 4 ? 2 : 1)};
 	}
 
 	@Override

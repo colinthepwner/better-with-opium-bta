@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "bwopium:block/poppy_flower_white/0"
+  }
+}
