@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/cross",
   "textures": {
-    "cross": "bwopium:block/opium_poppy/upper_2"
+    "cross": "bwopium:block/opium_poppy/white_3_pods"
   }
 }

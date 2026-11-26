@@ -23,6 +23,11 @@ public class PoppyGen {
 		return 80;
 	}
 
+	public static int pick_color(Random r) {
+		int n = r.nextInt(20);
+		return n < 7 ? 0 : n < 13 ? 1 : n < 17 ? 2 : 3;
+	}
+
 	public static void gen(World w, int chunk_x, int chunk_z) {
 		if (Bwopium.poppy == null) return;
 		Random r = new Random(w.getRandomSeed() ^ (chunk_x * 341873128712L + chunk_z * 132897987541L) ^ 0x6f7069756dL);
@@ -33,6 +38,8 @@ public class PoppyGen {
 
 		int id = Bwopium.poppy.id();
 
+		int col = pick_color(r);
+
 		int tries = 6 + r.nextInt(9);
 		for (int i = 0; i < tries; i++) {
 
@@ -42,9 +49,11 @@ public class PoppyGen {
 			if (!w.isAirBlock(x, y, z) || !w.isAirBlock(x, y + 1, z)) continue;
 			if (!BlockLogicPoppyCrop.good_ground(w.getBlockType(new TilePos(x, y - 1, z)))) continue;
 			int stack = r.nextInt(10) < 6 ? 0 : r.nextInt(3) == 0 ? 2 + r.nextInt(2) : 1;
+			boolean pods = r.nextInt(3) != 0;
+			int c = r.nextInt(10) == 0 ? pick_color(r) : col;
 
-			w.setBlockAndMetadata(x, y + 1, z, id, BlockLogicPoppy.data(true, stack));
-			w.setBlockAndMetadata(x, y, z, id, BlockLogicPoppy.data(false, stack));
+			w.setBlockAndMetadata(x, y + 1, z, id, BlockLogicPoppy.data(true, stack, pods, c));
+			w.setBlockAndMetadata(x, y, z, id, BlockLogicPoppy.data(false, stack, pods, c));
 		}
 	}
 }

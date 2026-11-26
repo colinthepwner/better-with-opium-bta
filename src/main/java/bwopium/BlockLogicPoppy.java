@@ -19,6 +19,7 @@ import net.minecraft.core.world.World;
 import net.minecraft.core.world.WorldSource;
 import net.minecraft.core.world.pos.TilePos;
 import net.minecraft.core.world.pos.TilePosc;
+import net.minecraft.core.world.season.Season;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.primitives.AABBdc;
@@ -32,6 +33,13 @@ public class BlockLogicPoppy extends BlockLogic {
 
 	static final int LANCE_HEAL = 30;
 
+	public static final int PODS = 4;
+
+	public static final int COLOR = 24;
+	public static final int COLORS = 4;
+
+	static final int POD_SET = 40;
+
 	public BlockLogicPoppy(@NotNull Block<?> block) {
 		super(block, Materials.PLANT);
 		block.setTicking(true);
@@ -44,7 +52,22 @@ public class BlockLogicPoppy extends BlockLogic {
 
 	public static int heads(int data) { return BlockLogicFlowerStackable.getStackCount(data) + 1; }
 
+	public static boolean has_pods(int data) { return (data & PODS) != 0; }
+
+	public static int color(int data) { return (data & COLOR) >> 3; }
+
+	public static int pod_cnt(int data) { return has_pods(data) ? (heads(data) >= 4 ? 2 : 1) : 0; }
+
 	public static int data(boolean upper, int stack) { return BlockLogicFlowerStackable.setStackCount(upper ? UPPER : 0, stack); }
+
+	public static int data(boolean upper, int stack, boolean pods, int color) { return data(upper, stack) | (pods ? PODS : 0) | (color << 3 & COLOR); }
+
+	void set_pods(World w, TilePosc up, boolean on) {
+		TilePos lo = up.down(new TilePos());
+		int du = w.getBlockData(up), dl = w.getBlockData(lo);
+		w.setBlockDataNotify(up, on ? du | PODS : du & ~PODS & ~LANCED);
+		if (is_half(w, lo, false)) w.setBlockDataNotify(lo, on ? dl | PODS : dl & ~PODS);
+	}
 
 	boolean is_half(World w, TilePosc pos, boolean want_upper) {
 		return w.getBlockType(pos) == block && upper(w.getBlockData(pos)) == want_upper;
@@ -65,9 +88,9 @@ public class BlockLogicPoppy extends BlockLogic {
 
 	@Override
 	public void onPlacedByMob(@NotNull World w, @NotNull TilePosc pos, @NotNull Side side, @NotNull Mob mob, double x_hit, double y_hit) {
-		int stack = BlockLogicFlowerStackable.getStackCount(w.getBlockData(pos));
-		w.setBlockTypeDataNotify(pos, block, data(false, stack));
-		w.setBlockTypeDataNotify(pos.up(new TilePos()), block, data(true, stack));
+		int d = w.getBlockData(pos), stack = BlockLogicFlowerStackable.getStackCount(d);
+		w.setBlockTypeDataNotify(pos, block, data(false, stack, has_pods(d), color(d)));
+		w.setBlockTypeDataNotify(pos.up(new TilePos()), block, data(true, stack, has_pods(d), color(d)));
 	}
 
 	@Override
@@ -82,22 +105,30 @@ public class BlockLogicPoppy extends BlockLogic {
 	@Override
 	public ItemStack[] getBreakResult(@NotNull World w, @NotNull EnumDropCause cause, int data, @Nullable TileEntity te) {
 
-		if (cause == EnumDropCause.PICK_BLOCK) return new ItemStack[]{new ItemStack(this, 1, UPPER)};
-
-		return new ItemStack[]{new ItemStack(Bwopium.pod, heads(data))};
+		if (cause == EnumDropCause.PICK_BLOCK) return new ItemStack[]{new ItemStack(this, 1, UPPER | data & COLOR)};
+		int n = pod_cnt(data);
+		return n > 0 ? new ItemStack[]{new ItemStack(Bwopium.pod, n)} : null;
 	}
 
 	@Override
 	public boolean onInteracted(@NotNull World w, @NotNull TilePosc pos, @NotNull Player p, @Nullable Side side, double x_hit, double y_hit) {
-		ItemStack held = p.getHeldItem();
-		if (held == null || !(held.getItem() instanceof ItemToolShears)) return false;
 		TilePos up = new TilePos(pos);
 		if (!upper(w.getBlockData(pos))) pos.up(up);
 		if (!is_half(w, up, true)) return false;
 		int d = w.getBlockData(up);
+		if (!has_pods(d)) return false;
+		ItemStack held = p.getHeldItem();
+		if (held == null || !(held.getItem() instanceof ItemToolShears)) {
+			if (!w.isClientSide) {
+				w.dropItem(up, new ItemStack(Bwopium.pod, pod_cnt(d)));
+				set_pods(w, up, false);
+				w.playBlockSoundEffect(p, up.x + 0.5f, up.y + 0.5f, up.z + 0.5f, block, EnumBlockSoundEffectType.DIG);
+			}
+			return true;
+		}
 		if (lanced(d)) return true;
 		if (!w.isClientSide) {
-			w.dropItem(up, new ItemStack(Bwopium.raw, heads(d) >= 3 ? 2 : 1));
+			w.dropItem(up, new ItemStack(Bwopium.raw, pod_cnt(d)));
 			w.setBlockDataNotify(up, d | LANCED);
 			held.damageItem(1, p);
 			w.playBlockSoundEffect(p, up.x + 0.5f, up.y + 0.5f, up.z + 0.5f, block, EnumBlockSoundEffectType.DIG);
@@ -109,7 +140,11 @@ public class BlockLogicPoppy extends BlockLogic {
 	public void updateTick(@NotNull World w, @NotNull TilePosc pos, @NotNull Random rand, boolean random_tick) {
 		if (!random_tick || w.isClientSide) return;
 		int d = w.getBlockData(pos);
-		if (upper(d) && lanced(d) && rand.nextInt(LANCE_HEAL) == 0) w.setBlockDataNotify(pos, d & ~LANCED);
+		if (!upper(d)) return;
+		if (lanced(d) && rand.nextInt(LANCE_HEAL) == 0) w.setBlockDataNotify(pos, d & ~LANCED);
+		if (has_pods(d) || rand.nextInt(POD_SET) != 0) return;
+		Season s = w.getSeasonManager().getCurrentSeason();
+		if (s == null || !s.killFlowers) set_pods(w, pos, true);
 	}
 
 	@Override

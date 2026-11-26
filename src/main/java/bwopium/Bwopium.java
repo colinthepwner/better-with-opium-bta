@@ -11,7 +11,7 @@ import net.minecraft.core.item.Items;
 import net.minecraft.core.net.command.CommandManager;
 import turniplabs.halplibe.helper.creativeInventory.CreativeInventoryPlacement;
 import turniplabs.halplibe.helper.creativeInventory.CreativeInventoryRegistry;
-import java.util.List;
+import java.util.stream.IntStream;
 import net.minecraft.core.block.tag.BlockTags;
 import net.minecraft.core.item.ItemStack;
 import net.minecraft.core.item.Item;
@@ -88,7 +88,7 @@ public class Bwopium implements ModInitializer {
 
 		CreativeInventoryRegistry inv = CreativeInventoryRegistry.INSTANCE;
 		inv.register(poppy, new CreativeInventoryPlacement.After(() -> Blocks.FLOWER_RED)
-			.setCustomSupplier(() -> List.of(new ItemStack(poppy, 1, BlockLogicPoppy.UPPER))));
+			.setCustomSupplier(() -> IntStream.range(0, BlockLogicPoppy.COLORS).mapToObj(c -> new ItemStack(poppy, 1, BlockLogicPoppy.UPPER | c << 3)).toList()));
 		for (Item i : new Item[]{seeds, pod, pod_half, raw}) inv.register(i, new CreativeInventoryPlacement.After(() -> Items.SEEDS_PUMPKIN));
 	}
 

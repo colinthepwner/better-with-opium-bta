@@ -17,6 +17,7 @@ import net.minecraft.core.world.pos.TilePos;
 import net.minecraft.core.world.pos.TilePosc;
 import net.minecraft.core.world.season.Season;
 import net.minecraft.core.world.season.Seasons;
+import bwopium.world.PoppyGen;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.primitives.AABBdc;
@@ -69,8 +70,10 @@ public class BlockLogicPoppyCrop extends BlockLogic {
 		if (rand.nextFloat() < FAIL) { w.setBlockTypeNotify(pos, Blocks.AIR); return; }
 
 		int stack = rand.nextInt(5) == 0 ? 1 : 0;
-		w.setBlockTypeDataNotify(up, Bwopium.poppy, BlockLogicPoppy.data(true, stack));
-		w.setBlockTypeDataNotify(pos, Bwopium.poppy, BlockLogicPoppy.data(false, stack));
+
+		int col = PoppyGen.pick_color(rand);
+		w.setBlockTypeDataNotify(up, Bwopium.poppy, BlockLogicPoppy.data(true, stack, false, col));
+		w.setBlockTypeDataNotify(pos, Bwopium.poppy, BlockLogicPoppy.data(false, stack, false, col));
 	}
 
 	@Override
