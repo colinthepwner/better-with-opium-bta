@@ -66,7 +66,7 @@ public class Bwopium implements ModInitializer {
 		def.addEntry("poppy_crop_block_id", "change if it clashes with another mod", 2401);
 		def.addEntry("poppy_seeds_item_id", "change if it clashes with another mod", 23402);
 		def.addEntry("poppy_flower_block_id", "first of 4 ids in a row (one per color). change if it clashes with another mod", 2402);
-		def.addEntry("opium_food_item_id", "first of 7 ids in a row (opium bread, cookie, stew, golden apple, cake, pie, jar). change if it clashes with another mod", 23404);
+		def.addEntry("opium_food_item_id", "first of 7 ids in a row (opium bread, cookie, stew, apple, cake, pie, jar). change if it clashes with another mod", 23404);
 		def.addEntry("opium_food_block_id", "first of 3 ids in a row (placed opium cake, pie, jar). change if it clashes with another mod", 2406);
 		def.addEntry("raw_opium_item_id", "change if it clashes with another mod", 23403);
 		def.addEntry("frame_pacing", "lets the high/withdrawal mess with your framerate a little. off = never touches fps", true);
@@ -126,7 +126,8 @@ public class Bwopium implements ModInitializer {
 		bread = new ItemOpiumFood(MOD_ID + ".opium_bread", MOD_ID + ":item/opium_bread", fi, 5, 12, 8, lump, false);
 		cookie = new ItemOpiumFood(MOD_ID + ".opium_cookie", MOD_ID + ":item/opium_cookie", fi + 1, 1, 0, 16, lump / 8, false);
 		stew = new ItemOpiumFood(MOD_ID + ".opium_stew", MOD_ID + ":item/opium_stew", fi + 2, 10, 16, 1, lump, true);
-		apple = new ItemOpiumFood(MOD_ID + ".opium_apple", MOD_ID + ":item/opium_apple", fi + 3, 42, 0, 1, lump, false);
+
+		apple = new ItemOpiumFood(MOD_ID + ".opium_apple", MOD_ID + ":item/opium_apple", fi + 3, 4, 8, 8, lump, false);
 		cake = new ItemPlaceable(MOD_ID + ".opium_cake", MOD_ID + ":item/opium_cake", fi + 4, cake_block).setMaxStackSize(1);
 		pie = new ItemPlaceable(MOD_ID + ".opium_pie", MOD_ID + ":item/opium_pie", fi + 5, pie_block).setMaxStackSize(1);
 		jar = new ItemOpiumJar(MOD_ID + ".opium_jar", MOD_ID + ":item/opium_jar", fi + 6);
@@ -143,7 +144,7 @@ public class Bwopium implements ModInitializer {
 		RecipeBuilder.Furnace(MOD_ID).setInput(pod).create("poppy_seeds", new ItemStack(seeds, 1));
 		RecipeBuilder.Shapeless(MOD_ID).addInput(Items.FOOD_BREAD).addInput(raw).create("opium_bread", new ItemStack(bread));
 		RecipeBuilder.Shapeless(MOD_ID).addInput(Items.FOOD_STEW_MUSHROOM).addInput(raw).create("opium_stew", new ItemStack(stew));
-		RecipeBuilder.Shapeless(MOD_ID).addInput(Items.FOOD_APPLE_GOLD).addInput(raw).create("opium_apple", new ItemStack(apple));
+		RecipeBuilder.Shapeless(MOD_ID).addInput(Items.FOOD_APPLE).addInput(raw).create("opium_apple", new ItemStack(apple));
 		RecipeBuilder.Shapeless(MOD_ID).addInput(Items.FOOD_CAKE).addInput(raw).addInput(raw).create("opium_cake", new ItemStack(cake));
 		RecipeBuilder.Shapeless(MOD_ID).addInput(Items.FOOD_PUMPKIN_PIE).addInput(raw).addInput(raw).create("opium_pie", new ItemStack(pie));
 		var ck = RecipeBuilder.Shapeless(MOD_ID).addInput(raw);

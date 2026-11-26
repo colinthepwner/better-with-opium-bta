@@ -1,5 +1,6 @@
 package bwopium.food;
 
+import bwopium.high.Opium;
 import net.minecraft.core.block.Block;
 import net.minecraft.core.block.BlockLogicEdible;
 import net.minecraft.core.block.Blocks;
@@ -35,7 +36,7 @@ public class BlockLogicOpiumEdible extends BlockLogicEdible {
 	public boolean onInteracted(@NotNull World w, @NotNull TilePosc pos, @NotNull Player p, @Nullable Side side, double x_hit, double y_hit) {
 		if (p.getHealth() < p.getMaxHealth()) p.heal(heal);
 		Infused.munch(p, w, Infused.crumb());
-		Infused.dose(p, w, amt);
+		Infused.dose(p, w, amt, Opium.EDIBLE);
 		int d = w.getBlockData(pos) + 1;
 		if (d >= maxBites) w.setBlockTypeNotify(pos, Blocks.AIR);
 		else {

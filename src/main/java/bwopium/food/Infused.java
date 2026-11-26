@@ -12,10 +12,10 @@ import java.util.Random;
 public final class Infused {
 	static final Random rnd = new Random();
 
-	public static void dose(Player p, World w, float amt) {
+	public static void dose(Player p, World w, float amt, int kind) {
 		if (w.isClientSide) return;
 		Opium o = OpiumHolder.of(p);
-		if (o != null) o.eat(p, w.getWorldTime(), amt, Opium.EXTRACT);
+		if (o != null) o.eat(p, w.getWorldTime(), amt, kind);
 	}
 
 	public static void munch(Player p, World w, int crumb_id) {

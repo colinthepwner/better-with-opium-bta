@@ -1,5 +1,6 @@
 package bwopium.food;
 
+import bwopium.high.Opium;
 import net.minecraft.core.entity.player.Player;
 import net.minecraft.core.item.ItemFood;
 import net.minecraft.core.item.ItemStack;
@@ -23,7 +24,7 @@ public class ItemOpiumFood extends ItemFood {
 		if (!self.consumeItem(p)) return self;
 		if (hungry) p.eatFood(self);
 		Infused.munch(p, w, Infused.crumb());
-		Infused.dose(p, w, amt);
+		Infused.dose(p, w, amt, Opium.EDIBLE);
 		return bowl && self.stackSize <= 0 ? new ItemStack(Items.BOWL) : self;
 	}
 }

@@ -41,7 +41,14 @@ public class Opium {
 	public float half_str;
 	public boolean extract_done;
 
-	public static final int BITE = 0, HALF = 1, EXTRACT = 2;
+	public static final int BITE = 0, HALF = 1, EXTRACT = 2, EDIBLE = 3;
+
+	static final float[][] PROFILE = {
+		{1, 1, 1, 1, 1},
+		{1, 1, 1, 1, 1},
+		{0.5f, 0.85f, 1.2f, 1.6f, 1.6f},
+		{2.5f, 1.5f, 0.85f, 0.6f, 0.6f},
+	};
 
 	public boolean synced;
 
@@ -62,6 +69,8 @@ public class Opium {
 		float pot = 1;
 
 		float rlen = 1;
+
+		float hook = 1;
 	}
 
 	float heal_sens() { return (float) Math.pow(1 + 3 * tol, -1.5) * emax(); }
@@ -80,16 +89,23 @@ public class Opium {
 
 	float need() { return 0.35f * (1 + 2.0f * tol); }
 
+	static double part(Dose d, double t) {
+		if (t <= 0) return 0;
+		double ka = d.ka, ke = d.ke, a = d.amt;
+		if (Math.abs(ka - ke) < 1e-9) return a * NORM * ka * t * Math.exp(-ka * t);
+		return a * NORM * ka / (ka - ke) * (Math.exp(-ke * t) - Math.exp(-ka * t));
+	}
+
 	double level_at(long now) {
 		double sum = 0;
-		for (Dose d : doses) {
-			double t = now - d.t0;
-			if (t <= 0) continue;
-			double ka = d.ka, ke = d.ke, a = d.amt;
-			if (Math.abs(ka - ke) < 1e-9) sum += a * NORM * ka * t * Math.exp(-ka * t);
-			else sum += a * NORM * ka / (ka - ke) * (Math.exp(-ke * t) - Math.exp(-ka * t));
-		}
+		for (Dose d : doses) sum += part(d, now - d.t0);
 		return sum;
+	}
+
+	double hook_at(long now) {
+		double s = 0, w = 0;
+		for (Dose d : doses) { double c = part(d, now - d.t0); s += c * d.hook; w += c; }
+		return w > 1e-6 ? s / w : 1;
 	}
 
 	float rush_at(long now) {
@@ -145,20 +161,21 @@ public class Opium {
 		else if (kind == HALF && half_str > 0) { str = half_str; half_str = 0; }
 		else str = strength_roll();
 		if (kind == BITE) half_str = str;
-		amt *= str;
+		float[] pf = PROFILE[kind];
+		amt *= str * pf[2];
 
 		float x = lvl / ec50();
 		float stack = 1 - 0.75f * smooth((x - 0.3f) / 1.5f);
 		float eff = amt * stack;
 		float a = adapt();
-		double abs_hl = lerp(900, 450, a), elim_hl = lerp(3200, 1100, a);
+		double abs_hl = lerp(900, 450, a) * pf[0], elim_hl = lerp(3200, 1100, a) * pf[1];
 
 		boolean first = life < 0.01f && last_dose_t < 0;
 
 		boolean first_extract = kind == EXTRACT && !extract_done;
 		if (kind == EXTRACT) extract_done = true;
 		Dose d = new Dose();
-		d.t0 = now; d.amt = eff;
+		d.t0 = now; d.amt = eff; d.hook = pf[4];
 		d.pot = last_pot = first ? 1.6f : first_extract ? 1.45f : potency(now);
 		if (first_extract && !first) d.rlen = 0.6f;
 		last_dose_t = now;
@@ -177,7 +194,7 @@ public class Opium {
 		}
 		doses.add(d);
 
-		tol += 0.10f * amt * (1 - tol / 2.2f);
+		tol += 0.10f * amt * pf[3] * (1 - tol / 2.2f);
 		life += amt * (1 - life / 60f);
 	}
 
@@ -236,7 +253,7 @@ public class Opium {
 
 		double pres = Math.min(1, l / 0.3);
 		double drive = Math.pow(Math.max(0, tol - 0.15), 1.2);
-		dep += (float) (dt * 1.2e-5 * pres * drive * (1 - dep));
+		dep += (float) (dt * 1.2e-5 * pres * drive * hook_at(mid) * (1 - dep));
 		double hl = (dep > 0.3f ? DEP_HL_ACUTE : DEP_HL_TAIL) * dep_slow();
 		dep *= (float) Math.exp(-LN2 * dt / hl * deficit);
 
@@ -414,6 +431,7 @@ public class Opium {
 			dt.putFloat("healed", d.healed);
 			dt.putFloat("pot", d.pot);
 			dt.putFloat("rlen", d.rlen);
+			dt.putFloat("hook", d.hook);
 			t.putCompound("d" + i, dt);
 		}
 		return t;
@@ -456,6 +474,7 @@ public class Opium {
 			d.healed = dt.getFloat("healed");
 			d.pot = dt.containsKey("pot") ? dt.getFloat("pot") : 1;
 			d.rlen = dt.containsKey("rlen") ? dt.getFloat("rlen") : 1;
+			d.hook = dt.containsKey("hook") ? dt.getFloat("hook") : 1;
 			doses.add(d);
 		}
 		loaded = true;

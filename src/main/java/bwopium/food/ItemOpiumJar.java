@@ -1,5 +1,6 @@
 package bwopium.food;
 
+import bwopium.high.Opium;
 import bwopium.Bwopium;
 import bwopium.ItemPoppyPod;
 import net.minecraft.core.block.tag.BlockTags;
@@ -47,7 +48,7 @@ public class ItemOpiumJar extends Item {
 
 	static ItemStack eat(ItemStack self, World w, Player p) {
 		Infused.munch(p, w, Infused.crumb());
-		Infused.dose(p, w, ItemPoppyPod.EXTRACT);
+		Infused.dose(p, w, ItemPoppyPod.EXTRACT, Opium.EXTRACT);
 		if (!p.getGamemode().hasBlockConsumption()) return self;
 		if (self.getMetadata() == 0) { self.setMetadata(1); return self; }
 		return new ItemStack(Items.JAR);
