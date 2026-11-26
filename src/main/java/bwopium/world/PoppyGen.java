@@ -50,10 +50,9 @@ public class PoppyGen {
 			if (!BlockLogicPoppyCrop.good_ground(w.getBlockType(new TilePos(x, y - 1, z)))) continue;
 			int stack = r.nextInt(10) < 6 ? 0 : r.nextInt(3) == 0 ? 2 + r.nextInt(2) : 1;
 			boolean pods = r.nextInt(3) != 0;
-			int c = r.nextInt(10) == 0 ? pick_color(r) : col;
 
-			w.setBlockAndMetadata(x, y + 1, z, id, BlockLogicPoppy.data(true, stack, pods, c));
-			w.setBlockAndMetadata(x, y, z, id, BlockLogicPoppy.data(false, stack, pods, c));
+			w.setBlockAndMetadata(x, y + 1, z, id, BlockLogicPoppy.data(true, stack, pods, col));
+			w.setBlockAndMetadata(x, y, z, id, BlockLogicPoppy.data(false, stack, pods, col));
 		}
 	}
 }

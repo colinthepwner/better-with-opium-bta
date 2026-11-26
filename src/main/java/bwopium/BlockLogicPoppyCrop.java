@@ -71,7 +71,7 @@ public class BlockLogicPoppyCrop extends BlockLogic {
 
 		int stack = rand.nextInt(5) == 0 ? 1 : 0;
 
-		int col = PoppyGen.pick_color(rand);
+		int col = PoppyGen.pick_color(new Random(w.getRandomSeed() ^ (pos.x() >> 4) * 341873128712L ^ (pos.z() >> 4) * 132897987541L));
 		w.setBlockTypeDataNotify(up, Bwopium.poppy, BlockLogicPoppy.data(true, stack, false, col));
 		w.setBlockTypeDataNotify(pos, Bwopium.poppy, BlockLogicPoppy.data(false, stack, false, col));
 	}
